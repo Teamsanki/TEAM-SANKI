@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support System | SK Official</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Header */
+        h1 {
+            margin: 20px;
+            font-size: 2.5rem;
+            color: orange;
+        }
+
+        /* Support Chat Section */
+        #supportChat {
+            display: none;
+            margin: 20px auto;
+            width: 300px;
+            background: #222;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        #supportChat input,
+        #supportChat button {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            background-color: orange;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #ff8c00;
+        }
+
+        /* Queue Message */
+        #queueMessage {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: orange;
+        }
+
+        /* Admin Login */
+        #adminLogin {
+            display: none;
+            background: #333;
+            padding: 20px;
+            margin: 30px auto;
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        /* Verified Tick */
+        .verified {
+            color: orange;
+            font-size: 1.2rem;
+            margin-left: 5px;
+        }
+
+        /* Footer */
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to TEAM SANKI Support</h1>
+    <!-- Start Support Chat -->
+    <button onclick="startSupport()" id="supportBtn">Open Support Chat</button>
+    
+    <div id="supportChat">
+        <h2>Support Chat</h2>
+        <input type="text" id="userName" placeholder="Enter Your Name" required />
+        <button onclick="enterChat()">Enter Chat</button>
+        <div id="queueMessage"></div>
+    </div>
+
+    <!-- Admin Login Panel -->
+    <div id="adminLogin">
+        <h2>Admin Panel</h2>
+        <input type="email" id="adminEmail" placeholder="Enter Email" />
+        <input type="password" id="adminPassword" placeholder="Enter Password" />
+        <button onclick="verifyAdmin()">Login</button>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2024 TEAM SANKI. All Rights Reserved.
+    </footer>
+
+    <script>
+        let isOwnerOnline = false; // Owner status
+        let queue = []; // Support queue list
+        let adminLoggedIn = false;
+        let tapCount = 0; // Button tap counter for Admin Panel trigger
+
+        // Open Support Chat
+        function startSupport() {
+            document.getElementById('supportChat').style.display = 'block';
+        }
+
+        // Enter Chat Queue
+        function enterChat() {
+            const name = document.getElementById('userName').value.trim();
+            if (name === "") {
+                alert("Please enter your name!");
+                return;
+            }
+
+            if (isOwnerOnline) {
+                alert(`Welcome, ${name}! An admin (TEAM SANKI <span class="verified">&#10004;</span>) will help you shortly.`);
+            } else {
+                // Add user to queue
+                queue.push(name);
+                const position = queue.indexOf(name) + 1;
+                document.getElementById('queueMessage').innerHTML = `
+                    Hello ${name}, you are in queue position: <b>${position}</b>. 
+                    Estimated time: <b>${position * 2} minutes</b>.
+                `;
+                sendNotification(name);
+            }
+        }
+
+        // Simulate Email Notification
+        function sendNotification(userName) {
+            console.log(`Notification Sent to Admin: "${userName} is waiting for support."`);
+            alert("Admin is offline. Notification sent. Please wait for your turn.");
+        }
+
+        // Admin Panel Login
+        function verifyAdmin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const correctPassword = "SK112566";
+            const adminEmail = "griexgamer@gmail.com";
+
+            if (email === adminEmail && password === correctPassword) {
+                adminLoggedIn = true;
+                isOwnerOnline = true;
+                alert(`Admin Login Successful! Welcome, SK Official ✅`);
+                document.getElementById('adminLogin').style.display = 'none';
+                updateQueue();
+            } else {
+                alert("Incorrect Email or Password. Access Denied!");
+            }
+        }
+
+        // Admin Queue Update
+        function updateQueue() {
+            if (queue.length > 0) {
+                alert(`Admin Online: Assisting user ${queue.shift()}`);
+            }
+        }
+
+        // Trigger Admin Login on 5 Fast Taps
+        document.getElementById('supportBtn').addEventListener('click', () => {
+            tapCount++;
+            if (tapCount >= 5) {
+                document.getElementById('adminLogin').style.display = 'block';
+                tapCount = 0; // Reset tap count
+            }
+            setTimeout(() => tapCount = 0, 1000); // Reset if no taps within 1 second
+        });
+    </script>
+</body>
+</html>
