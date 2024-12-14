@@ -3,172 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support System | Team Sanki</title>
+    <title>Support Chat | SK Official</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
-            background-color: #000;
+            background-color: #222;
             color: #fff;
             text-align: center;
-            overflow: hidden;
+            padding: 30px;
         }
 
-        /* Loading Screen */
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            color: orange;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Header */
         h1 {
-            margin: 20px;
-            font-size: 2.5rem;
+            margin-bottom: 20px;
             color: orange;
         }
 
-        /* Default Page Content */
-        #defaultPage {
-            display: block;
-            margin-top: 50px;
-        }
-
-        /* Support Chat Section */
-        #supportChat {
-            display: none;
-            margin: 20px auto;
-            width: 300px;
-            background: #222;
-            padding: 15px;
+        #supportForm {
+            background-color: #333;
+            padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            width: 300px;
+            margin: 0 auto;
         }
 
-        #supportChat input,
-        #supportChat button {
+        input {
             width: 100%;
-            margin: 5px 0;
             padding: 10px;
+            margin-bottom: 15px;
             border: none;
             border-radius: 5px;
-            outline: none;
+            background: #444;
+            color: white;
+            font-size: 14px;
         }
 
         button {
+            width: 100%;
+            padding: 12px;
             background-color: orange;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
             color: white;
-            font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
         }
 
         button:hover {
             background-color: #ff8c00;
         }
 
-        /* Admin Login */
-        #adminLogin {
-            display: none;
-            background: #333;
-            padding: 20px;
-            margin: 30px auto;
-            width: 300px;
-            border-radius: 10px;
-        }
-
-        /* Profile Image */
-        .profile-img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-left: 5px;
-            cursor: pointer;
-        }
-
-        /* Footer */
-        footer {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Chat Window */
-        #chatWindow {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        /* Queue Message */
         #queueMessage {
             margin-top: 20px;
             font-size: 1.1rem;
             color: orange;
         }
-
+        footer {
+            margin-top: 50px;
+            color: gray;
+        }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loading">
-        <h1>Loading...</h1>
+    <h1>Welcome to TEAM SANKI Support</h1>
+    
+    <div id="supportForm">
+        <input type="text" id="telegramUsername" placeholder="Enter your Telegram username" required />
+        <input type="text" id="userName" placeholder="Enter your name" required />
+        <button onclick="enterSupportChat()">Submit</button>
     </div>
 
-    <!-- Default Page Content -->
-    <div id="defaultPage">
-        <h1>Welcome to Team Sanki Support</h1>
-        <div>
-            <p>Welcome to the Team Sanki Support system. We are here to help you with any issues.</p>
-            <button onclick="startSupport()">Start Support Chat</button>
-            <br>
-            <img src="https://graph.org/file/ae1108390e6dc4f7231cf-ce089431124e12e862.jpg" alt="Profile Image" class="profile-img" onclick="startSupport()">
-        </div>
-    </div>
-
-    <!-- Support Chat Section -->
-    <div id="supportChat">
-        <h2>Support Chat</h2>
-        <input type="text" id="userName" placeholder="Enter Your Name" required />
-        <button onclick="enterChat()">Enter Chat</button>
-        <div id="queueMessage"></div>
-        <div id="chatWindow"></div>
-    </div>
-
-    <!-- Admin Login Panel -->
-    <div id="adminLogin">
-        <h2>Admin Panel</h2>
-        <input type="email" id="adminEmail" placeholder="Enter Email" />
-        <input type="password" id="adminPassword" placeholder="Enter Password" />
-        <button onclick="verifyAdmin()">Login</button>
-    </div>
-
-    <!-- Footer -->
+    <div id="queueMessage"></div>
     <footer>
-        &copy; 2024 TEAM SANKI. All Rights Reserved.
+        <p>© <span id="year"></span> SK Official. All Rights Reserved.</p>
     </footer>
-
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
@@ -177,97 +94,44 @@
       projectId: "social-bite-skofficial",
       storageBucket: "social-bite-skofficial.appspot.com",
       messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
-            measurementId: "G-EJE8L74022"
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
         };
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let isOwnerOnline = false;
+        const db = firebase.database(app);
+        
         let queue = [];
-        let adminLoggedIn = false;
 
-        // Show loading screen
-        function showLoading() {
-            document.getElementById('loading').style.display = 'flex';
-            setTimeout(() => document.getElementById('loading').style.display = 'none', 2000);
-        }
+        function enterSupportChat() {
+            const telegramUsername = document.getElementById('telegramUsername').value.trim();
+            const userName = document.getElementById('userName').value.trim();
 
-        // Show Support Chat Section
-        function startSupport() {
-            showLoading();
-            setTimeout(() => {
-                document.getElementById('defaultPage').style.display = 'none';
-                document.getElementById('supportChat').style.display = 'block';
-            }, 1000);
-        }
-
-        // Enter Chat Queue
-        function enterChat() {
-            const name = document.getElementById('userName').value.trim();
-            if (name === "") {
-                alert("Please enter your name!");
+            if (!telegramUsername || !userName) {
+                alert("Please fill in both fields.");
                 return;
             }
 
-            if (isOwnerOnline) {
-                alert(`Welcome, ${name}! An admin will help you shortly.`);
-            } else {
-                queue.push(name);
-                const position = queue.indexOf(name) + 1;
-                document.getElementById('queueMessage').innerHTML = `
-                    Hello ${name}, you are in queue position: <b>${position}</b>. 
-                    Estimated time: <b>${position * 2} minutes</b>.
-                `;
-                sendNotification(name);
-            }
+            // Check if owner is online
+            const ownerStatusRef = db.ref('owner/online');
+            ownerStatusRef.once('value', (snapshot) => {
+                const isOwnerOnline = snapshot.val();
+
+                if (isOwnerOnline) {
+                    // Owner is online, direct user to chat
+                    alert("You are now connected with the owner.");
+                    // Redirect to chat interface
+                    window.location.href = "chat-interface.html?userName=" + userName;
+                } else {
+                    // Add user to queue
+                    queue.push({ username: telegramUsername, name: userName });
+                    db.ref('queue').set(queue);
+                    const position = queue.length;
+                    document.getElementById('queueMessage').innerHTML = `
+                        You are in the queue! Your position: <b>${position}</b>. 
+                        Estimated wait time: <b>${position * 2} minutes</b>.
+                    `;
+                }
+            });
         }
-
-        // Send Email Notification (Simulated for now)
-        function sendNotification(userName) {
-            console.log(`Notification Sent to Admin: "${userName} is waiting for support."`);
-        }
-
-        // Admin Login Verification
-        function verifyAdmin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const correctPassword = "SK112566";
-            const adminEmail = "griexgamer@gmail.com";
-
-            if (email === adminEmail && password === correctPassword) {
-                adminLoggedIn = true;
-                isOwnerOnline = true;
-                alert("Admin Login Successful! You are now online.");
-                document.getElementById('adminLogin').style.display = 'none';
-                updateQueue();
-            } else {
-                alert("Incorrect Email or Password. Access Denied!");
-            }
-        }
-
-        // Admin Queue Update
-        function updateQueue() {
-            if (queue.length > 0) {
-                const userName = queue.shift();
-                alert(`Admin is online: Assisting user ${userName}`);
-                document.getElementById('chatWindow').innerHTML += `<p><b>Admin:</b> Hello, ${userName}. How can I help you?</p>`;
-            }
-        }
-
-        // Firebase Integration: Handle Real-Time Data for Chat (Optional)
-        const chatRef = db.ref('chats');
-        function sendChatMessage(message, userName) {
-            chatRef.push({ userName: userName, message: message });
-        }
-
-        chatRef.on('child_added', (snapshot) => {
-            const chatData = snapshot.val();
-            document.getElementById('chatWindow').innerHTML += `
-                <p><b>${chatData.userName}:</b> ${chatData.message}</p>
-            `;
-        });
-
     </script>
 </body>
 </html>
