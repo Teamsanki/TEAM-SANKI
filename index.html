@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support System | SK Official</title>
+    <title>Support System | Team Sanki</title>
     <style>
         * {
             margin: 0;
@@ -19,11 +19,31 @@
             overflow: hidden;
         }
 
+        /* Loading Screen */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: orange;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
         /* Header */
         h1 {
             margin: 20px;
             font-size: 2.5rem;
             color: orange;
+        }
+
+        /* Default Page Content */
+        #defaultPage {
+            display: block;
+            margin-top: 50px;
         }
 
         /* Support Chat Section */
@@ -59,13 +79,6 @@
             background-color: #ff8c00;
         }
 
-        /* Queue Message */
-        #queueMessage {
-            margin-top: 20px;
-            font-size: 1.1rem;
-            color: orange;
-        }
-
         /* Admin Login */
         #adminLogin {
             display: none;
@@ -76,11 +89,13 @@
             border-radius: 10px;
         }
 
-        /* Verified Tick */
-        .verified {
-            color: orange;
-            font-size: 1.2rem;
+        /* Profile Image */
+        .profile-img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             margin-left: 5px;
+            cursor: pointer;
         }
 
         /* Footer */
@@ -92,18 +107,47 @@
             color: #666;
             font-size: 0.9rem;
         }
+
+        /* Chat Window */
+        #chatWindow {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        /* Queue Message */
+        #queueMessage {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: orange;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Welcome to TEAM SANKI Support</h1>
-    <!-- Start Support Chat -->
-    <button onclick="startSupport()" id="supportBtn">Open Support Chat</button>
-    
+    <!-- Loading Screen -->
+    <div id="loading">
+        <h1>Loading...</h1>
+    </div>
+
+    <!-- Default Page Content -->
+    <div id="defaultPage">
+        <h1>Welcome to Team Sanki Support</h1>
+        <div>
+            <p>Welcome to the Team Sanki Support system. We are here to help you with any issues.</p>
+            <button onclick="startSupport()">Start Support Chat</button>
+            <br>
+            <img src="https://graph.org/file/ae1108390e6dc4f7231cf-ce089431124e12e862.jpg" alt="Profile Image" class="profile-img" onclick="startSupport()">
+        </div>
+    </div>
+
+    <!-- Support Chat Section -->
     <div id="supportChat">
         <h2>Support Chat</h2>
         <input type="text" id="userName" placeholder="Enter Your Name" required />
         <button onclick="enterChat()">Enter Chat</button>
         <div id="queueMessage"></div>
+        <div id="chatWindow"></div>
     </div>
 
     <!-- Admin Login Panel -->
@@ -119,15 +163,43 @@
         &copy; 2024 TEAM SANKI. All Rights Reserved.
     </footer>
 
-    <script>
-        let isOwnerOnline = false; // Owner status
-        let queue = []; // Support queue list
-        let adminLoggedIn = false;
-        let tapCount = 0; // Button tap counter for Admin Panel trigger
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
-        // Open Support Chat
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+      authDomain: "social-bite-skofficial.firebaseapp.com",
+      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+      projectId: "social-bite-skofficial",
+      storageBucket: "social-bite-skofficial.appspot.com",
+      messagingSenderId: "239722707022",
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
+            measurementId: "G-EJE8L74022"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let isOwnerOnline = false;
+        let queue = [];
+        let adminLoggedIn = false;
+
+        // Show loading screen
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+            setTimeout(() => document.getElementById('loading').style.display = 'none', 2000);
+        }
+
+        // Show Support Chat Section
         function startSupport() {
-            document.getElementById('supportChat').style.display = 'block';
+            showLoading();
+            setTimeout(() => {
+                document.getElementById('defaultPage').style.display = 'none';
+                document.getElementById('supportChat').style.display = 'block';
+            }, 1000);
         }
 
         // Enter Chat Queue
@@ -139,9 +211,8 @@
             }
 
             if (isOwnerOnline) {
-                alert(`Welcome, ${name}! An admin (TEAM SANKI <span class="verified">&#10004;</span>) will help you shortly.`);
+                alert(`Welcome, ${name}! An admin will help you shortly.`);
             } else {
-                // Add user to queue
                 queue.push(name);
                 const position = queue.indexOf(name) + 1;
                 document.getElementById('queueMessage').innerHTML = `
@@ -152,13 +223,12 @@
             }
         }
 
-        // Simulate Email Notification
+        // Send Email Notification (Simulated for now)
         function sendNotification(userName) {
             console.log(`Notification Sent to Admin: "${userName} is waiting for support."`);
-            alert("Admin is offline. Notification sent. Please wait for your turn.");
         }
 
-        // Admin Panel Login
+        // Admin Login Verification
         function verifyAdmin() {
             const email = document.getElementById('adminEmail').value.trim();
             const password = document.getElementById('adminPassword').value;
@@ -168,7 +238,7 @@
             if (email === adminEmail && password === correctPassword) {
                 adminLoggedIn = true;
                 isOwnerOnline = true;
-                alert(`Admin Login Successful! Welcome, SK Official ✅`);
+                alert("Admin Login Successful! You are now online.");
                 document.getElementById('adminLogin').style.display = 'none';
                 updateQueue();
             } else {
@@ -179,19 +249,25 @@
         // Admin Queue Update
         function updateQueue() {
             if (queue.length > 0) {
-                alert(`Admin Online: Assisting user ${queue.shift()}`);
+                const userName = queue.shift();
+                alert(`Admin is online: Assisting user ${userName}`);
+                document.getElementById('chatWindow').innerHTML += `<p><b>Admin:</b> Hello, ${userName}. How can I help you?</p>`;
             }
         }
 
-        // Trigger Admin Login on 5 Fast Taps
-        document.getElementById('supportBtn').addEventListener('click', () => {
-            tapCount++;
-            if (tapCount >= 5) {
-                document.getElementById('adminLogin').style.display = 'block';
-                tapCount = 0; // Reset tap count
-            }
-            setTimeout(() => tapCount = 0, 1000); // Reset if no taps within 1 second
+        // Firebase Integration: Handle Real-Time Data for Chat (Optional)
+        const chatRef = db.ref('chats');
+        function sendChatMessage(message, userName) {
+            chatRef.push({ userName: userName, message: message });
+        }
+
+        chatRef.on('child_added', (snapshot) => {
+            const chatData = snapshot.val();
+            document.getElementById('chatWindow').innerHTML += `
+                <p><b>${chatData.userName}:</b> ${chatData.message}</p>
+            `;
         });
+
     </script>
 </body>
 </html>
